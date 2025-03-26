@@ -249,9 +249,9 @@
                               memory: "128Mi"
                               cpu: "100m"
           
+![Screenshot (365)](https://github.com/user-attachments/assets/33a5464e-724b-4c7a-83d3-69df3aeefb63)
 
-   
-          - Staging
+  - Staging
        
                   apiVersion: apps/v1
                   kind: Deployment
@@ -271,9 +271,9 @@
                                 memory: "512Mi"
                                 cpu: "250m"
 
-  
-       
-          - Production
+![Screenshot (367)](https://github.com/user-attachments/assets/e0363175-5607-4622-86be-239fd31f659e)
+
+  - Production
 
                 apiVersion: apps/v1
                 kind: Deployment
@@ -293,7 +293,7 @@
                               memory: "1Gi"
                               cpu: "500m"
 
-
+![Screenshot (366)](https://github.com/user-attachments/assets/a4cd7a8a-5bb8-4936-8cd2-fdc9a651f61a)
 
 ### <ins>Task 5: Integrate with a CI/CD Pipleline</ins>
 
@@ -301,6 +301,7 @@
 
       - I decided to choose GitHub Actions
         
+![Screenshot (368)](https://github.com/user-attachments/assets/0e6b5453-b0d7-4a31-85a0-fecf7fb462da)
 
   - Set up a pipeline that deploys your application using Kustomize. The pipeline should trigger on code changes.
 
@@ -341,7 +342,8 @@
                               run: |
                                 kubectl apply -k ./kustomize/overlays/prod
 
-
+![Screenshot (369)](https://github.com/user-attachments/assets/f0c0d93d-cf91-493b-a91b-d5d74b8c6d97)
+![Screenshot (370)](https://github.com/user-attachments/assets/5b7c692e-3d81-4572-842d-c08eed38f5d3)
 
 ### <ins>Task 6: Test the CI/CD Pipeline</ins>
 
@@ -383,9 +385,9 @@
                     options:
                         disableNameSuffixHash: true    
 
-
+![Screenshot (371)](https://github.com/user-attachments/assets/52d8f748-ff42-48e0-8550-d52452f5dd36)
     
-          - Staging
+   - Staging
 
                 apiVersion: kustomize.config.k8s.io/v1beta1
                 kind: Kustomization
@@ -407,9 +409,9 @@
                     options:
                         disableNameSuffixHash: true
        
+![Screenshot (373)](https://github.com/user-attachments/assets/056c9d5c-8267-42eb-9192-846a09ff03f6)
 
-
-          - Production
+  - Production
 
                 apiVersion: kustomize.config.k8s.io/v1beta1
                 kind: Kustomization
@@ -431,3 +433,4 @@
                     options:
                         disableNameSuffixHash: true
 
+![Screenshot (372)](https://github.com/user-attachments/assets/d0112295-ec0d-4179-8a86-bbbb1c05adbd)
