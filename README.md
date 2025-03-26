@@ -305,43 +305,6 @@
 
   - Set up a pipeline that deploys your application using Kustomize. The pipeline should trigger on code changes.
 
-<ins>Pipeline</ins>
-
-                      name: CI/CD Pipeline
-                      
-                      on:
-                        push:
-                          branches:
-                            - main
-                        pull_request:
-                          branches:
-                            - main
-                      
-                      jobs:
-                        deploy:
-                          runs-on: ubuntu-latest
-                          steps:
-                            - name: Checkout repository
-                              uses: actions/checkout@v3
-                      
-                            - name: Set up Kustomize
-                              run: |
-                                curl -sLo kustomize.tar.gz "https://github.com/kubernetes-sigs/kustomize/releases/latest/download/kustomize_linux_amd64.tar.gz"
-                                tar -xzf kustomize.tar.gz
-                                chmod +x kustomize
-                                sudo mv kustomize /usr/local/bin/
-                      
-                            - name: Authenticate with Kubernetes
-                              uses: azure/k8s-set-context@v3
-                              with:
-                                method: service-account
-                                k8s-url: ${{ secrets.K8S_CLUSTER_URL }}
-                                k8s-secret: ${{ secrets.K8S_SECRET }}
-                      
-                            - name: Deploy using Kustomize
-                              run: |
-                                kubectl apply -k ./kustomize/overlays/prod
-
 ![Screenshot (369)](https://github.com/user-attachments/assets/f0c0d93d-cf91-493b-a91b-d5d74b8c6d97)
 ![Screenshot (370)](https://github.com/user-attachments/assets/5b7c692e-3d81-4572-842d-c08eed38f5d3)
 
