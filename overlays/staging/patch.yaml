@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3  # Staging environment uses moderate replica count for testing
+  template:
+    spec:
+      containers:
+        - name: my-app-container
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "750m"
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
