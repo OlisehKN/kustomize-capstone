@@ -12,7 +12,7 @@
 
             mkdir kustomize-capstone
 
-
+![Screenshot (354)](https://github.com/user-attachments/assets/798e0125-7bca-4739-bb72-3b32991792bd)
 
   - Inside the directory, structure it with Kustomize conventions: **base/** and **overlays/** (subdirectories for dev, staging and prod).
 
@@ -20,7 +20,7 @@
 
             mkdir base mkdir overlays mkdir overlays/dev mkdir overlays/staging mkdir overlays/prod
 
-
+![Screenshot (355)](https://github.com/user-attachments/assets/489c390b-8b04-47e4-8384-0574b81e02f7)
 
 ### <ins>Task 2: Initialize Git</ins>
 
@@ -28,7 +28,7 @@
 
       - I navigated to the "source control" panel on vscode and selected "initialize repository"
    
-
+![Screenshot (356)](https://github.com/user-attachments/assets/69fa760e-e175-4d74-be38-b8728ff61751)
 
   - Create a **.gitignore** file to exclude unnecessary files.
 
@@ -81,7 +81,7 @@
                   
                   # End
 
-
+![Screenshot (357)](https://github.com/user-attachments/assets/5de60487-3a07-4412-a892-1173e16541c1)
 
 ### <ins>Task 3: Define Base Configuration</ins>
 
@@ -150,7 +150,7 @@
                 stringData:
                   database_url: "postgres://user:password@host:port/dbname"
 
-
+![Screenshot (358)](https://github.com/user-attachments/assets/16917636-074e-4acd-bf8d-21bc0466c981)
 
   - Create a **kustomize.yaml** file in **base/** to include these resources.
 
@@ -162,7 +162,7 @@
               resources:
                 - deployment.yaml
 
-
+![Screenshot (359)](https://github.com/user-attachments/assets/30f1d6c0-cec3-48fb-af72-2e5359811de4)
 
 ### <ins>Task 4: Create Environment-Specific Overlays:</ins>
 
@@ -185,9 +185,9 @@
                     path: /data/environment
                     value: "development"
 
+![Screenshot (362)](https://github.com/user-attachments/assets/b81d4fed-853b-4703-be10-9d10a90c3881)
 
-
-      - Staging
+  - Staging
 
             apiVersion: kustomize.config.k8s.io/v1beta1
             kind: Kustomization
@@ -204,9 +204,9 @@
                     path: /data/environment
                     value: "staging"
 
-
-        
-      - Production
+![Screenshot (364)](https://github.com/user-attachments/assets/00242d76-b73a-48fd-bd04-8c359faa0d73)
+      
+   - Production
 
             apiVersion: kustomize.config.k8s.io/v1beta1
             kind: Kustomization
@@ -223,7 +223,7 @@
                     path: /data/environment
                     value: "production"
         
-
+![Screenshot (363)](https://github.com/user-attachments/assets/6bfc9c77-28a4-419d-989f-bae96077d123)
 
   - Implement variations for each environment (e.g., different replica counts, resource limits, or environment variables).
 
