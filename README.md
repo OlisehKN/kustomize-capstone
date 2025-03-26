@@ -33,30 +33,323 @@
   - Create a **.gitignore** file to exclude unnecessary files.
 
       - I used the "touch .gitignore" command line to create the .gitignore file and then input the following code into the file so as to exclude unnecessary files
-   
-            
+                     
+                  ### VisualStudioCode ###
+                  .vscode/*
+                  !.vscode/settings.json
+                  !.vscode/tasks.json
+                  !.vscode/launch.json
+                  !.vscode/extensions.json
+                  !.vscode/*.code-snippets
+                  
+                  # Local History for Visual Studio Code
+                  .history/
+                  
+                  # Built Visual Studio Code Extensions
+                  *.vsix
+                  
+                  ### VisualStudioCode Patch ###
+                  # Ignore all local history of files
+                  .history
+                  .ionide
+                  
+                  ### Windows ###
+                  # Windows thumbnail cache files
+                  Thumbs.db
+                  Thumbs.db:encryptable
+                  ehthumbs.db
+                  ehthumbs_vista.db
+                  
+                  # Dump file
+                  *.stackdump
+                  
+                  # Folder config file
+                  [Dd]esktop.ini
+                  
+                  # Recycle Bin used on file shares
+                  $RECYCLE.BIN/
+                  
+                  # Windows Installer files
+                  *.cab
+                  *.msi
+                  *.msix
+                  *.msm
+                  *.msp
+                  
+                  # Windows shortcuts
+                  *.lnk
+                  
+                  # End
+
+
 
 ### <ins>Task 3: Define Base Configuration</ins>
 
   - In the **base/** directory, define Kubernetes resources like Deployment, Service, etc., for your web application.
 
+      - below is the deployment.yaml file
+
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: my-app
+                  labels:
+                    app: my-app
+                spec:
+                  replicas: 2
+                  selector:
+                    matchLabels:
+                      app: my-app
+                  template:
+                    metadata:
+                      labels:
+                        app: my-app
+                    spec:
+                      containers:
+                        - name: my-app-container
+                          image: my-app:latest # Replace with actual image and tag
+                          ports:
+                            - containerPort: 8080
+                          env:
+                            - name: ENVIRONMENT
+                              valueFrom:
+                                configMapKeyRef:
+                                  name: my-app-config
+                                  key: environment
+                            - name: DATABASE_URL
+                              valueFrom:
+                                secretKeyRef:
+                                  name: my-app-secrets
+                                  key: database_url
+                          resources:
+                            limits:
+                              memory: "512Mi"
+                              cpu: "500m"
+                            requests:
+                              memory: "256Mi"
+                              cpu: "250m"
+                ---
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: my-app-config
+                  labels:
+                    app: my-app
+                  
+                data:
+                  environment: "development"  # Change per environment (e.g., production, staging)
+                ---
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: my-app-secrets
+                  labels:
+                    app: my-app
+                  
+                type: Opaque
+                stringData:
+                  database_url: "postgres://user:password@host:port/dbname"
+
+
+
   - Create a **kustomize.yaml** file in **base/** to include these resources.
+
+      - Below is the kustomize.yaml file in the "base/" directory
+   
+              apiVersion: kustomize.config.k8s.io/v1beta1
+              kind: Kustomization
+              
+              resources:
+                - deployment.yaml
+
+
 
 ### <ins>Task 4: Create Environment-Specific Overlays:</ins>
 
   - In each subdirectory of **overlays/**, create a **kustomize.yaml** that customizes the base configuration for that environment.
 
+      - Development
+
+            apiVersion: kustomize.config.k8s.io/v1beta1
+            kind: Kustomization
+            
+            resources:
+              - ../base
+            
+            patches:
+              - target:
+                  kind: ConfigMap
+                  name: my-app-config
+                patch: |-
+                  - op: replace
+                    path: /data/environment
+                    value: "development"
+
+
+
+      - Staging
+
+            apiVersion: kustomize.config.k8s.io/v1beta1
+            kind: Kustomization
+            
+            resources:
+              - ../base
+            
+            patches:
+              - target:
+                  kind: ConfigMap
+                  name: my-app-config
+                patch: |-
+                  - op: replace
+                    path: /data/environment
+                    value: "staging"
+
+
+        
+      - Production
+
+            apiVersion: kustomize.config.k8s.io/v1beta1
+            kind: Kustomization
+            
+            resources:
+              - ../base
+            
+            patches:
+              - target:
+                  kind: ConfigMap
+                  name: my-app-config
+                patch: |-
+                  - op: replace
+                    path: /data/environment
+                    value: "production"
+        
+
+
   - Implement variations for each environment (e.g., different replica counts, resource limits, or environment variables).
+
+      - I added a "patch.yaml" file to each environment which implements the different replica counts and resource limits
+   
+          - Development
+       
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: my-app
+                spec:
+                  replicas: 1  # Development environment uses a single replica
+                  template:
+                    spec:
+                      containers:
+                        - name: my-app-container
+                          resources:
+                            limits:
+                              memory: "256Mi"
+                              cpu: "250m"
+                            requests:
+                              memory: "128Mi"
+                              cpu: "100m"
+          
+
+   
+          - Staging
+       
+                  apiVersion: apps/v1
+                  kind: Deployment
+                  metadata:
+                    name: my-app
+                  spec:
+                    replicas: 3  # Staging environment uses moderate replica count for testing
+                    template:
+                      spec:
+                        containers:
+                          - name: my-app-container
+                            resources:
+                              limits:
+                                memory: "1Gi"
+                                cpu: "750m"
+                              requests:
+                                memory: "512Mi"
+                                cpu: "250m"
+
+  
+       
+          - Production
+
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: my-app
+                spec:
+                  replicas: 5  # Production environment uses multiple replicas for scalability
+                  template:
+                    spec:
+                      containers:
+                        - name: my-app-container
+                          resources:
+                            limits:
+                              memory: "2Gi"
+                              cpu: "1"
+                            requests:
+                              memory: "1Gi"
+                              cpu: "500m"
+
+
 
 ### <ins>Task 5: Integrate with a CI/CD Pipleline</ins>
 
   - Choose a CI/CD platform (e.g., GitHub Actions, Jenkins)
 
+      - I decided to choose GitHub Actions
+        
+
   - Set up a pipeline that deploys your application using Kustomize. The pipeline should trigger on code changes.
+
+<ins>Pipeline</ins>
+
+                      name: CI/CD Pipeline
+                      
+                      on:
+                        push:
+                          branches:
+                            - main
+                        pull_request:
+                          branches:
+                            - main
+                      
+                      jobs:
+                        deploy:
+                          runs-on: ubuntu-latest
+                          steps:
+                            - name: Checkout repository
+                              uses: actions/checkout@v3
+                      
+                            - name: Set up Kustomize
+                              run: |
+                                curl -sLo kustomize.tar.gz "https://github.com/kubernetes-sigs/kustomize/releases/latest/download/kustomize_linux_amd64.tar.gz"
+                                tar -xzf kustomize.tar.gz
+                                chmod +x kustomize
+                                sudo mv kustomize /usr/local/bin/
+                      
+                            - name: Authenticate with Kubernetes
+                              uses: azure/k8s-set-context@v3
+                              with:
+                                method: service-account
+                                k8s-url: ${{ secrets.K8S_CLUSTER_URL }}
+                                k8s-secret: ${{ secrets.K8S_SECRET }}
+                      
+                            - name: Deploy using Kustomize
+                              run: |
+                                kubectl apply -k ./kustomize/overlays/prod
+
+
 
 ### <ins>Task 6: Test the CI/CD Pipeline</ins>
 
   - Make changes in your Kustomize configurations and push to your repository
+
+      - I made modifications to the replica counts in the Kustomize configurations in the repository
+      - Then i committed the changes and oushed them to the main branch
+      - Lastly, i navigated to the "Actions" tab in GitHub and verified that the workflow is running  
 
   - Verify that the CI/CD pipeline correctly applies these changes to a Kubernetes cluster.
 
@@ -65,3 +358,76 @@
   - Use Kustomize to generate ConfigMaps and Secrets. Ensure sensitive data is handled securely.
 
   - Apply these configurations in your overlays for different environments.
+
+      - I added a "generator.yaml" file to each of the different environments
+   
+          - Development
+
+                apiVersion: kustomize.config.k8s.io/v1beta1
+                kind: Kustomization
+                
+                resources:
+                  - ../../base
+                
+                configMapGenerator:
+                  - name: my-app-config
+                    literals:
+                        - ENVIRONMENT=development
+                        - LOG_LEVEL=debug
+                
+                secretGenerator:
+                  - name: my-app-secrets
+                    files:
+                        - db-password.txt
+                        - api-key.txt
+                    options:
+                        disableNameSuffixHash: true    
+
+
+    
+          - Staging
+
+                apiVersion: kustomize.config.k8s.io/v1beta1
+                kind: Kustomization
+                
+                resources:
+                  - ../../base
+                
+                configMapGenerator:
+                  - name: my-app-config
+                    literals:
+                        - ENVIRONMENT=staging
+                        - LOG_LEVEL=debug
+                
+                secretGenerator:
+                  - name: my-app-secrets
+                    files:
+                        - db-password.txt
+                        - api-key.txt
+                    options:
+                        disableNameSuffixHash: true
+       
+
+
+          - Production
+
+                apiVersion: kustomize.config.k8s.io/v1beta1
+                kind: Kustomization
+                
+                resources:
+                  - ../../base
+                
+                configMapGenerator:
+                  - name: my-app-config
+                    literals:
+                        - ENVIRONMENT=production
+                        - LOG_LEVEL=debug
+                
+                secretGenerator:
+                  - name: my-app-secrets
+                    files:
+                        - db-password.txt
+                        - api-key.txt
+                    options:
+                        disableNameSuffixHash: true
+
